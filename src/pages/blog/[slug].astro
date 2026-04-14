@@ -1,0 +1,263 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection, type CollectionEntry } from "astro:content";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: CollectionEntry<"blog">;
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+
+const allPosts = (await getCollection("blog")).sort(
+  (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+);
+const currentIndex = allPosts.findIndex((p) => p.slug === post.slug);
+const prevPost = allPosts[currentIndex + 1] ?? null;
+const nextPost = allPosts[currentIndex - 1] ?? null;
+
+function formatDate(date: Date) {
+  return date.toLocaleDateString("ja-JP", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+---
+
+<BaseLayout title={post.data.title} description={post.data.description}>
+  <article class="article">
+    <!-- ヘッダー -->
+    <header class="article-header">
+      <div class="article-meta">
+        <span class="article-tag">{post.data.tag}</span>
+        <span class="article-date">
+          <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+          {post.data.readingTime && <> · {post.data.readingTime} min</>}
+        </span>
+      </div>
+      <h1 class="article-title">{post.data.title}</h1>
+      <p class="article-description">{post.data.description}</p>
+    </header>
+
+    <!-- 本文 -->
+    <div class="article-body">
+      <Content />
+    </div>
+
+    <!-- フッターナビ -->
+    <nav class="article-nav">
+      {prevPost && (
+        <a href={`/blog/${prevPost.slug}`} class="nav-link nav-prev">
+          <span class="nav-label">← 前の記事</span>
+          <span class="nav-title">{prevPost.data.title}</span>
+        </a>
+      )}
+      {nextPost && (
+        <a href={`/blog/${nextPost.slug}`} class={`nav-link nav-next ${!prevPost ? "nav-only" : ""}`}>
+          <span class="nav-label">次の記事 →</span>
+          <span class="nav-title">{nextPost.data.title}</span>
+        </a>
+      )}
+    </nav>
+
+    <div class="back-link">
+      <a href="/">← 一覧に戻る</a>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .article {
+    max-width: 680px;
+  }
+
+  .article-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 0.5px solid var(--color-border);
+  }
+
+  .article-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0.75rem;
+  }
+
+  .article-tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-secondary);
+    color: var(--color-text-secondary);
+    border: 0.5px solid var(--color-border);
+  }
+
+  .article-date {
+    font-size: 11px;
+    color: var(--color-text-tertiary);
+  }
+
+  .article-title {
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1.45;
+    letter-spacing: -0.3px;
+    margin-bottom: 0.75rem;
+  }
+
+  .article-description {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+  }
+
+  /* 本文スタイル */
+  .article-body {
+    font-size: 15px;
+    line-height: 1.85;
+  }
+
+  .article-body :global(h2) {
+    font-size: 17px;
+    font-weight: 500;
+    margin: 2rem 0 0.75rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 0.5px solid var(--color-border);
+  }
+
+  .article-body :global(h3) {
+    font-size: 15px;
+    font-weight: 500;
+    margin: 1.5rem 0 0.5rem;
+  }
+
+  .article-body :global(p) {
+    margin-bottom: 1.1rem;
+    color: var(--color-text-secondary);
+  }
+
+  .article-body :global(ul),
+  .article-body :global(ol) {
+    margin: 0 0 1.1rem 1.2rem;
+    color: var(--color-text-secondary);
+  }
+
+  .article-body :global(li) {
+    margin-bottom: 0.3rem;
+  }
+
+  .article-body :global(code) {
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 13px;
+    background: var(--color-bg-secondary);
+    border: 0.5px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 1px 5px;
+  }
+
+  .article-body :global(pre) {
+    background: #1a1a1a;
+    border-radius: var(--radius-md);
+    padding: 1rem 1.2rem;
+    overflow-x: auto;
+    margin-bottom: 1.25rem;
+  }
+
+  .article-body :global(pre code) {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #e4e4e7;
+    font-size: 13px;
+  }
+
+  .article-body :global(blockquote) {
+    border-left: 2px solid var(--color-border-hover);
+    padding-left: 1rem;
+    color: var(--color-text-tertiary);
+    margin-bottom: 1.1rem;
+  }
+
+  .article-body :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 1.25rem;
+  }
+
+  .article-body :global(th),
+  .article-body :global(td) {
+    padding: 6px 12px;
+    border: 0.5px solid var(--color-border);
+    text-align: left;
+  }
+
+  .article-body :global(th) {
+    background: var(--color-bg-secondary);
+    font-weight: 500;
+  }
+
+  /* ナビゲーション */
+  .article-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 0.5px solid var(--color-border);
+  }
+
+  .nav-link {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0.75rem;
+    border: 0.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .nav-link:hover {
+    border-color: var(--color-border-hover);
+    background: var(--color-bg-secondary);
+  }
+
+  .nav-next {
+    text-align: right;
+    margin-left: auto;
+  }
+
+  .nav-only {
+    grid-column: 2;
+  }
+
+  .nav-label {
+    font-size: 11px;
+    color: var(--color-text-tertiary);
+  }
+
+  .nav-title {
+    font-size: 13px;
+    color: var(--color-text-primary);
+    line-height: 1.4;
+  }
+
+  .back-link {
+    margin-top: 1.5rem;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+  }
+
+  .back-link a:hover {
+    color: var(--color-text-primary);
+  }
+</style>

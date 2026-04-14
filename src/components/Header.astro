@@ -1,0 +1,84 @@
+---
+const navItems = [
+  { label: 'ホーム', href: '/' },
+  { label: '記事一覧', href: '/#articles' },
+  { label: 'タグ', href: '/#tags' },
+  { label: 'About', href: '/about' },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo -->
+      <a href="/" class="flex items-center gap-2 group">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-white font-bold text-sm shadow-md group-hover:shadow-lg transition-shadow">
+          IS
+        </div>
+        <span class="font-bold text-slate-800 text-lg tracking-tight group-hover:text-blue-600 transition-colors">
+          InnoSpot
+        </span>
+      </a>
+
+      <!-- Desktop Nav -->
+      <nav class="hidden md:flex items-center gap-1">
+        {navItems.map((item) => (
+          <a
+            href={item.href}
+            class={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              currentPath === item.href
+                ? 'text-blue-600 bg-blue-50'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+            }`}
+          >
+            {item.label}
+          </a>
+        ))}
+      </nav>
+
+      <!-- Mobile menu button -->
+      <button
+        id="mobile-menu-btn"
+        class="md:hidden p-2 rounded-md text-slate-600 hover:bg-slate-100 transition-colors"
+        aria-label="メニューを開く"
+        aria-expanded="false"
+      >
+        <svg id="menu-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+        <svg id="close-icon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Mobile Nav -->
+    <div id="mobile-menu" class="md:hidden hidden border-t border-slate-200 py-2">
+      {navItems.map((item) => (
+        <a
+          href={item.href}
+          class="block px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+        >
+          {item.label}
+        </a>
+      ))}
+    </div>
+  </div>
+</header>
+
+<script>
+  const btn = document.getElementById('mobile-menu-btn');
+  const menu = document.getElementById('mobile-menu');
+  const menuIcon = document.getElementById('menu-icon');
+  const closeIcon = document.getElementById('close-icon');
+
+  btn?.addEventListener('click', () => {
+    const isOpen = !menu?.classList.contains('hidden');
+    menu?.classList.toggle('hidden');
+    menuIcon?.classList.toggle('hidden', !isOpen);
+    closeIcon?.classList.toggle('hidden', isOpen);
+    btn.setAttribute('aria-expanded', String(!isOpen));
+  });
+</script>
