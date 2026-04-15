@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(npm create:*)",
+      "Bash(echo '{}')",
+      "Bash(npm init:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(gh auth:*)",
+      "Bash(git init:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git remote:*)",
+      "Bash(git push:*)",
+      "Bash(gh run:*)",
+      "Bash(az account show:*)",
+      "Bash(az staticwebapp list:*)",
+      "Bash(az account list:*)",
+      "Bash(az staticwebapp secrets list:*)",
+      "Bash(gh secret:*)",
+      "Bash(git pull:*)"
+    ]
+  }
+}
