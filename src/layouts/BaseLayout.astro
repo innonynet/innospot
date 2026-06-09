@@ -9,7 +9,7 @@ interface Props {
 }
 
 const {
-  title = "inolog",
+  title = "いのろぐ",
   description = "Terraform / Azure / Kubernetes を中心に、設計判断・移行戦略・組織論まで踏み込んで書きます。",
   ogImage = "/og-default.svg",
   ogType = "website",
@@ -22,7 +22,7 @@ const recentCount = posts.filter((p) => new Date(p.data.date) > thirtyDaysAgo).l
 const siteUrl = Astro.site?.href?.replace(/\/$/, "") ?? "https://innony.net";
 const canonicalUrl = new URL(Astro.url.pathname, siteUrl).href;
 const ogImageUrl = ogImage.startsWith("http") ? ogImage : `${siteUrl}${ogImage}`;
-const pageTitle = title === "inolog" ? title : `${title} | inolog`;
+const pageTitle = title === "いのろぐ" ? title : `${title} | いのろぐ`;
 ---
 
 <!DOCTYPE html>
@@ -40,7 +40,7 @@ const pageTitle = title === "inolog" ? title : `${title} | inolog`;
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImageUrl} />
-    <meta property="og:site_name" content="inolog" />
+    <meta property="og:site_name" content="いのろぐ" />
     <meta property="og:locale" content="ja_JP" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={pageTitle} />
