@@ -66,8 +66,7 @@ const pageTitle = title === "inolog" ? title : `${title} | inolog`;
       <header class="site-header">
         <div class="header-inner">
           <a href="/" class="logo">
-            <span class="logo-dot"></span>
-            <span class="logo-text">いのろぐ</span>
+            <img src="/favicon.svg" alt="いのろぐ" class="logo-img" />
           </a>
           <nav class="nav">
             <a href="/" class="nav-link">記事</a>
@@ -225,24 +224,13 @@ const pageTitle = title === "inolog" ? title : `${title} | inolog`;
   .logo {
     display: flex;
     align-items: center;
-    gap: 8px;
     text-decoration: none;
   }
 
-  .logo-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--accent);
-    flex-shrink: 0;
-  }
-
-  .logo-text {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text-1);
-    letter-spacing: -0.3px;
-    font-family: "Inter", system-ui, sans-serif;
+  .logo-img {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
   }
 
   .nav {
