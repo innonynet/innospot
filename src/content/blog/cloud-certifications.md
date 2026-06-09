@@ -2,8 +2,9 @@
 title: "クラウド資格（GCP PCA・Azure SAE・AWS SAP）と第二種電気工事士の勉強方法"
 description: "この半年でGCP PCA・Azure SAE・AWS SAP・第二種電気工事士を取得しました。各試験の勉強方法と使った教材をまとめます。"
 date: 2026-04-15
-tag: cloud
+tags: [組織・キャリア]
 readingTime: 8
+likes: 41
 ---
 
 ## はじめに

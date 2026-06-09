@@ -2,8 +2,9 @@
 title: "Azure Static Web Appsで作るゼロコストブログ基盤"
 description: "WordPressを捨て、Astro + Azure Static Web Appsに移行することで管理コストをほぼゼロにする設計を解説する。"
 date: 2026-04-14
-tag: azure
+tags: [azure, devops]
 readingTime: 5
+likes: 33
 ---
 
 ## はじめに

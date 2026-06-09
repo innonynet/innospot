@@ -42,20 +42,22 @@ function formatDate(date: Date) {
   ogImage={post.data.thumbnail}
 >
   <article class="article">
-    <!-- ヘッダー -->
     <header class="article-header">
       <div class="article-meta">
-        <span class="article-tag">{post.data.tag}</span>
+        <div class="article-tags">
+          {post.data.tags.map((tag) => (
+            <span class="tag">{tag}</span>
+          ))}
+        </div>
         <span class="article-date">
           <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
-          {post.data.readingTime && <> · {post.data.readingTime} min</>}
+          {post.data.readingTime && <> · 読了 {post.data.readingTime}分</>}
         </span>
       </div>
       <h1 class="article-title">{post.data.title}</h1>
       <p class="article-description">{post.data.description}</p>
     </header>
 
-    <!-- 目次 -->
     {toc.length >= 3 && (
       <nav class="toc" aria-label="目次">
         <p class="toc-title">目次</p>
@@ -69,12 +71,10 @@ function formatDate(date: Date) {
       </nav>
     )}
 
-    <!-- 本文 -->
     <div class="article-body">
       <Content />
     </div>
 
-    <!-- フッターナビ -->
     <nav class="article-nav">
       {prevPost && (
         <a href={`/blog/${prevPost.slug}`} class="nav-link nav-prev">
@@ -83,7 +83,10 @@ function formatDate(date: Date) {
         </a>
       )}
       {nextPost && (
-        <a href={`/blog/${nextPost.slug}`} class:list={["nav-link nav-next", !prevPost && "nav-only"]}>
+        <a
+          href={`/blog/${nextPost.slug}`}
+          class:list={["nav-link nav-next", !prevPost && "nav-only"]}
+        >
           <span class="nav-label">次の記事 →</span>
           <span class="nav-title">{nextPost.data.title}</span>
         </a>
@@ -99,53 +102,61 @@ function formatDate(date: Date) {
 <style>
   .article {
     max-width: 680px;
+    padding-top: 2rem;
   }
 
   .article-header {
     margin-bottom: 2rem;
     padding-bottom: 1.5rem;
-    border-bottom: 0.5px solid var(--color-border);
+    border-bottom: 1px solid var(--border);
   }
 
   .article-meta {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 0.75rem;
+    gap: 12px;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
   }
 
-  .article-tag {
+  .article-tags {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
     font-size: 11px;
-    padding: 2px 8px;
+    color: var(--accent-text);
+    background: var(--bg-tag);
     border-radius: var(--radius-sm);
-    background: var(--color-bg-secondary);
-    color: var(--color-text-secondary);
-    border: 0.5px solid var(--color-border);
+    padding: 2px 8px;
   }
 
   .article-date {
-    font-size: 11px;
-    color: var(--color-text-tertiary);
+    font-size: 12px;
+    color: var(--text-3);
   }
 
   .article-title {
-    font-size: 22px;
-    font-weight: 500;
-    line-height: 1.45;
-    letter-spacing: -0.3px;
-    margin-bottom: 0.75rem;
+    font-size: clamp(20px, 3vw, 26px);
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.875rem;
+    color: var(--text-1);
   }
 
   .article-description {
     font-size: 14px;
-    color: var(--color-text-secondary);
-    line-height: 1.7;
+    color: var(--text-2);
+    line-height: 1.75;
   }
 
-  /* 目次 */
+  /* ToC */
   .toc {
-    background: var(--color-bg-secondary);
-    border: 0.5px solid var(--color-border);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: 1rem 1.25rem;
     margin-bottom: 2rem;
@@ -154,7 +165,7 @@ function formatDate(date: Date) {
   .toc-title {
     font-size: 10px;
     font-weight: 500;
-    color: var(--color-text-tertiary);
+    color: var(--text-3);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     margin-bottom: 0.625rem;
@@ -169,74 +180,82 @@ function formatDate(date: Date) {
 
   .toc-item a {
     font-size: 13px;
-    color: var(--color-text-secondary);
+    color: var(--text-2);
     line-height: 1.4;
+    transition: color 0.1s;
   }
 
   .toc-item a:hover {
-    color: var(--color-text-primary);
+    color: var(--text-1);
     text-decoration: underline;
     text-underline-offset: 2px;
   }
 
-  .toc-h3 {
-    padding-left: 1rem;
-  }
+  .toc-h3 { padding-left: 1rem; }
 
-  /* 本文スタイル */
+  /* Body */
   .article-body {
     font-size: 15px;
     line-height: 1.85;
   }
 
   .article-body :global(h2) {
-    font-size: 17px;
-    font-weight: 500;
-    margin: 2rem 0 0.75rem;
-    padding-bottom: 0.4rem;
-    border-bottom: 0.5px solid var(--color-border);
+    font-size: 18px;
+    font-weight: 700;
+    margin: 2.25rem 0 0.875rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-1);
     scroll-margin-top: 1rem;
   }
 
   .article-body :global(h3) {
     font-size: 15px;
-    font-weight: 500;
-    margin: 1.5rem 0 0.5rem;
+    font-weight: 600;
+    margin: 1.75rem 0 0.625rem;
+    color: var(--text-1);
     scroll-margin-top: 1rem;
   }
 
   .article-body :global(p) {
     margin-bottom: 1.1rem;
-    color: var(--color-text-secondary);
+    color: var(--text-2);
   }
 
   .article-body :global(ul),
   .article-body :global(ol) {
-    margin: 0 0 1.1rem 1.2rem;
-    color: var(--color-text-secondary);
+    margin: 0 0 1.1rem 1.25rem;
+    color: var(--text-2);
   }
 
-  .article-body :global(li) {
-    margin-bottom: 0.3rem;
+  .article-body :global(li) { margin-bottom: 0.35rem; }
+
+  .article-body :global(strong) { color: var(--text-1); }
+
+  .article-body :global(a) {
+    color: var(--accent-text);
+    text-decoration: underline;
+    text-underline-offset: 2px;
   }
 
   .article-body :global(code) {
-    font-family: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+    font-family: var(--font-mono);
     font-size: 13px;
-    background: var(--color-bg-secondary);
-    border: 0.5px solid var(--color-border);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     padding: 1px 5px;
   }
 
   .article-body :global(pre) {
     border-radius: var(--radius-md);
-    padding: 1rem 1.2rem;
+    padding: 1.125rem 1.25rem;
     overflow-x: auto;
     margin-bottom: 1.25rem;
-    font-family: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+    font-family: var(--font-mono);
     font-size: 13px;
     line-height: 1.7;
+    border: 1px solid var(--border);
   }
 
   .article-body :global(pre code) {
@@ -247,9 +266,9 @@ function formatDate(date: Date) {
   }
 
   .article-body :global(blockquote) {
-    border-left: 2px solid var(--color-border-hover);
+    border-left: 2px solid var(--border-2);
     padding-left: 1rem;
-    color: var(--color-text-tertiary);
+    color: var(--text-3);
     margin-bottom: 1.1rem;
   }
 
@@ -262,21 +281,22 @@ function formatDate(date: Date) {
 
   .article-body :global(th),
   .article-body :global(td) {
-    padding: 6px 12px;
-    border: 0.5px solid var(--color-border);
+    padding: 8px 12px;
+    border: 1px solid var(--border);
     text-align: left;
+    color: var(--text-2);
   }
 
   .article-body :global(th) {
-    background: var(--color-bg-secondary);
-    font-weight: 500;
+    background: var(--bg-card);
+    font-weight: 600;
+    color: var(--text-1);
   }
 
-  /* 画像 */
   .article-body :global(img) {
     max-width: 100%;
     border-radius: var(--radius-md);
-    border: 0.5px solid var(--color-border);
+    border: 1px solid var(--border);
     display: block;
     margin: 0 auto 0.25rem;
   }
@@ -288,43 +308,33 @@ function formatDate(date: Date) {
 
   .article-body :global(figcaption) {
     font-size: 12px;
-    color: var(--color-text-tertiary);
+    color: var(--text-3);
     margin-top: 0.375rem;
   }
 
-  /* img直後のemをキャプションとして表示 */
-  .article-body :global(p:has(> img) + p > em:only-child) {
-    display: block;
-    text-align: center;
-    font-size: 12px;
-    color: var(--color-text-tertiary);
-    font-style: normal;
-    margin-top: -0.75rem;
-    margin-bottom: 1.25rem;
-  }
-
-  /* ナビゲーション */
+  /* Nav */
   .article-nav {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 10px;
     margin-top: 3rem;
     padding-top: 1.5rem;
-    border-top: 0.5px solid var(--color-border);
+    border-top: 1px solid var(--border);
   }
 
   .nav-link {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    padding: 0.75rem;
-    border: 0.5px solid var(--color-border);
+    gap: 5px;
+    padding: 0.875rem;
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
+    transition: border-color 0.15s, background 0.15s;
   }
 
   .nav-link:hover {
-    border-color: var(--color-border-hover);
-    background: var(--color-bg-secondary);
+    border-color: var(--border-2);
+    background: var(--bg-card);
   }
 
   .nav-next {
@@ -332,28 +342,25 @@ function formatDate(date: Date) {
     margin-left: auto;
   }
 
-  .nav-only {
-    grid-column: 2;
-  }
+  .nav-only { grid-column: 2; }
 
   .nav-label {
     font-size: 11px;
-    color: var(--color-text-tertiary);
+    color: var(--text-3);
   }
 
   .nav-title {
     font-size: 13px;
-    color: var(--color-text-primary);
+    color: var(--text-1);
     line-height: 1.4;
   }
 
   .back-link {
     margin-top: 1.5rem;
     font-size: 13px;
-    color: var(--color-text-secondary);
+    color: var(--text-2);
+    transition: color 0.1s;
   }
 
-  .back-link a:hover {
-    color: var(--color-text-primary);
-  }
+  .back-link a:hover { color: var(--text-1); }
 </style>

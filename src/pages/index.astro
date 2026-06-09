@@ -3,287 +3,338 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
 
 const posts = await getCollection("blog");
-const sorted = posts.sort((a, b) =>
-  new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+const sorted = posts.sort(
+  (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
 );
 
-// タグ一覧を動的に生成
-const tags = ["all", ...new Set(sorted.map((p) => p.data.tag))];
+const allTags = ["すべて", ...new Set(sorted.flatMap((p) => p.data.tags))];
+const featured = sorted[0];
+const rest = sorted.slice(1);
 
-// サムネイルのカラー定義（frontmatterのtagに対応）
-function thumbBg(tag: string): string {
-  const map: Record<string, string> = {
-    azure:  "#E6F1FB",
-    aws:    "#FAEEDA",
-    cloud:  "#E1F5EE",
-    dev:    "#EEEDFE",
-    infra:  "#F1EFE8",
-  };
-  return map[tag] ?? "#F1EFE8";
-}
-
-function thumbFg(tag: string): string {
-  const map: Record<string, string> = {
-    azure:  "#185FA5",
-    aws:    "#854F0B",
-    cloud:  "#0F6E56",
-    dev:    "#534AB7",
-    infra:  "#5F5E5A",
-  };
-  return map[tag] ?? "#5F5E5A";
-}
-
-function thumbIcon(tag: string): string {
-  const map: Record<string, string> = {
-    azure:  '<path d="M8 3L14 8L10 8L10 13L6 13L6 8L2 8Z" fill="currentColor"/>',
-    aws:    '<rect x="2" y="6" width="12" height="7" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M5 6V5a3 3 0 0 1 6 0v1" stroke="currentColor" stroke-width="1.5" fill="none"/>',
-    cloud:  '<path d="M5 14a3 3 0 0 1 0-6 5 5 0 0 1 9.9-1A3 3 0 0 1 15 14Z" stroke="currentColor" stroke-width="1.5" fill="none"/>',
-    dev:    '<polyline points="4,6 2,8 4,10" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/><polyline points="12,6 14,8 12,10" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/><line x1="9" y1="4" x2="7" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
-    infra:  '<rect x="2" y="3" width="12" height="4" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/><rect x="2" y="9" width="12" height="4" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>',
-  };
-  return map[tag] ?? map["infra"];
+function formatDate(d: Date) {
+  return d.toLocaleDateString("ja-JP", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
 }
 ---
 
-<BaseLayout title="いのろぐ" description="AzureとAWSをいじり倒すブログ">
-  <!-- フィルター -->
+<BaseLayout>
+  <!-- Hero -->
+  <section class="hero">
+    <p class="hero-eyebrow">INFRASTRUCTURE × CLOUD × IAC</p>
+    <h1 class="hero-title">
+      インフラSEが書く、<br />実務で使える技術メモ。
+    </h1>
+    <p class="hero-subtitle">
+      Terraform / Azure / Kubernetes を中心に、設計判断・移行戦略・組織論まで踏み込んで書きます。
+    </p>
+  </section>
+
+  <!-- Tag filter -->
   <div class="filter-row">
-    {tags.map((tag) => (
-      <button
-        class={`f-btn ${tag === "all" ? "active" : ""}`}
-        data-tag={tag}
-        onclick="filterPosts(this)"
-      >
+    {allTags.map((tag, i) => (
+      <button class:list={["f-btn", i === 0 && "active"]} data-tag={tag}>
         {tag}
       </button>
     ))}
   </div>
 
-  <!-- 記事リスト -->
-  <div class="post-list" id="post-list">
-    {sorted.map((post) => (
-      <article class="post-item" data-tag={post.data.tag}>
-        <div class="thumb" style={`background: ${thumbBg(post.data.tag)}`}>
-          <svg viewBox="0 0 16 16" style={`color: ${thumbFg(post.data.tag)}`}>
-            <Fragment set:html={thumbIcon(post.data.tag)} />
-          </svg>
-        </div>
-        <div class="post-body">
-          <div class="post-top">
-            <span class="post-tag">{post.data.tag}</span>
-            <span class="post-meta">
-              {new Date(post.data.date).toLocaleDateString("ja-JP", { month: "2-digit", day: "2-digit" }).replace("/", ".")}
-              · {post.data.readingTime ?? "?"} min
-            </span>
-          </div>
-          <a href={`/blog/${post.slug}`} class="post-title">{post.data.title}</a>
-          <p class="post-excerpt">{post.data.description}</p>
-          <a href={`/blog/${post.slug}`} class="read-more">続きを読む →</a>
-        </div>
-      </article>
-    ))}
-  </div>
+  <!-- Articles -->
+  <section class="articles">
+    <p class="section-label">新着記事</p>
 
-  <!-- もっと見る -->
-  <div class="load-wrap">
-    <span class="count" id="count-label"></span>
-    <button class="load-btn" id="load-btn" onclick="loadMore()">もっと見る</button>
-  </div>
+    <!-- Featured -->
+    <article
+      class="card card-featured"
+      data-tags={JSON.stringify(featured.data.tags)}
+      id="card-featured"
+    >
+      <div class="card-accent"></div>
+      <div class="card-tags">
+        {featured.data.tags.map((tag, i) => (
+          <span class="tag">{tag}{i < featured.data.tags.length - 1 ? " ·" : ""}</span>
+        ))}
+      </div>
+      <a href={`/blog/${featured.slug}`} class="card-title-lg">
+        {featured.data.title}
+      </a>
+      <p class="card-desc">{featured.data.description}</p>
+      <div class="card-meta">
+        <time class="meta-date">{formatDate(featured.data.date)}</time>
+        <div class="meta-right">
+          {featured.data.readingTime && (
+            <span class="meta-item">読了 {featured.data.readingTime}分</span>
+          )}
+          {featured.data.likes != null && (
+            <span class="meta-item meta-likes">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+              </svg>
+              {featured.data.likes}
+            </span>
+          )}
+        </div>
+      </div>
+    </article>
+
+    <!-- Grid -->
+    <div class="cards-grid" id="cards-grid">
+      {rest.map((post) => (
+        <article class="card" data-tags={JSON.stringify(post.data.tags)}>
+          <div class="card-tags">
+            {post.data.tags.map((tag, i) => (
+              <span class="tag">{tag}{i < post.data.tags.length - 1 ? " ·" : ""}</span>
+            ))}
+          </div>
+          <a href={`/blog/${post.slug}`} class="card-title-md">
+            {post.data.title}
+          </a>
+          <p class="card-desc card-desc-clamp">{post.data.description}</p>
+          <div class="card-meta">
+            <time class="meta-date">{formatDate(post.data.date)}</time>
+            <div class="meta-right">
+              {post.data.readingTime && (
+                <span class="meta-item">{post.data.readingTime}分</span>
+              )}
+              {post.data.likes != null && (
+                <span class="meta-item meta-likes">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                  </svg>
+                  {post.data.likes}
+                </span>
+              )}
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
 </BaseLayout>
 
 <script>
-  const BATCH = 6;
-  let shown = 0;
-  let currentTag = "all";
+  const buttons = document.querySelectorAll<HTMLButtonElement>(".f-btn");
+  const featuredEl = document.getElementById("card-featured") as HTMLElement;
+  const gridCards = document.querySelectorAll<HTMLElement>("#cards-grid .card");
 
-  function getItems(): NodeListOf<HTMLElement> {
-    return document.querySelectorAll<HTMLElement>(".post-item");
-  }
+  function applyFilter(tag: string) {
+    const isAll = tag === "すべて";
 
-  function getFiltered(): HTMLElement[] {
-    return Array.from(getItems()).filter(
-      (el) => currentTag === "all" || el.dataset.tag === currentTag
+    buttons.forEach((b) =>
+      b.classList.toggle("active", b.dataset.tag === tag)
     );
+
+    const featuredTags: string[] = JSON.parse(featuredEl.dataset.tags ?? "[]");
+    featuredEl.style.display =
+      isAll || featuredTags.includes(tag) ? "" : "none";
+
+    gridCards.forEach((card) => {
+      const tags: string[] = JSON.parse(card.dataset.tags ?? "[]");
+      card.style.display = isAll || tags.includes(tag) ? "" : "none";
+    });
   }
 
-  function render() {
-    const all = Array.from(getItems());
-    const filtered = getFiltered();
-
-    all.forEach((el) => (el.style.display = "none"));
-    filtered.slice(0, shown).forEach((el) => (el.style.display = "flex"));
-
-    const btn = document.getElementById("load-btn") as HTMLButtonElement;
-    const label = document.getElementById("count-label")!;
-    label.textContent = `${Math.min(shown, filtered.length)} / ${filtered.length} 件`;
-
-    if (shown >= filtered.length) {
-      btn.disabled = true;
-      btn.textContent = "すべて表示済み";
-    } else {
-      btn.disabled = false;
-      btn.textContent = "もっと見る";
-    }
-  }
-
-  (window as any).loadMore = function () {
-    const filtered = getFiltered();
-    shown = Math.min(shown + BATCH, filtered.length);
-    render();
-  };
-
-  (window as any).filterPosts = function (btn: HTMLElement) {
-    document.querySelectorAll(".f-btn").forEach((b) => b.classList.remove("active"));
-    btn.classList.add("active");
-    currentTag = btn.dataset.tag ?? "all";
-    shown = 0;
-    (window as any).loadMore();
-  };
-
-  // 初期表示
-  (window as any).loadMore();
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => applyFilter(btn.dataset.tag ?? "すべて"));
+  });
 </script>
 
 <style>
+  /* ── Hero ── */
+  .hero {
+    padding: 4rem 0 3rem;
+  }
+
+  .hero-eyebrow {
+    font-size: 11px;
+    font-family: "Inter", system-ui, sans-serif;
+    letter-spacing: 0.14em;
+    color: var(--accent-text);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-title {
+    font-size: clamp(34px, 6vw, 56px);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -1.5px;
+    color: var(--text-1);
+    margin-bottom: 1.25rem;
+  }
+
+  .hero-subtitle {
+    font-size: 15px;
+    color: var(--text-2);
+    line-height: 1.85;
+    max-width: 540px;
+  }
+
+  /* ── Filter ── */
   .filter-row {
     display: flex;
-    gap: 8px;
-    margin-bottom: 1.5rem;
+    gap: 6px;
     flex-wrap: wrap;
+    margin-bottom: 2.5rem;
   }
 
   .f-btn {
-    font-size: 11px;
-    padding: 4px 12px;
+    font-size: 12px;
+    padding: 5px 14px;
     border-radius: 20px;
-    border: 0.5px solid var(--color-border);
+    border: 1px solid transparent;
     background: transparent;
-    color: var(--color-text-secondary);
+    color: var(--text-2);
     cursor: pointer;
     font-family: var(--font-sans);
+    transition: color 0.1s, background 0.1s, border-color 0.1s;
   }
 
-  .f-btn:hover:not(.active) {
-    background: var(--color-bg-secondary);
-  }
+  .f-btn:hover { color: var(--text-1); }
 
   .f-btn.active {
-    background: var(--color-text-primary);
-    color: var(--color-bg);
-    border-color: var(--color-text-primary);
+    background: var(--bg-card-2);
+    border-color: var(--border-2);
+    color: var(--text-1);
   }
 
-  .post-list {
-    border-top: 0.5px solid var(--color-border);
-  }
-
-  .post-item {
-    border-bottom: 0.5px solid var(--color-border);
-    padding: 1rem 0;
-    display: flex;
-    gap: 16px;
-    align-items: flex-start;
-  }
-
-  .thumb {
-    width: 56px;
-    height: 40px;
-    border-radius: 6px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .thumb svg {
-    width: 20px;
-    height: 20px;
-  }
-
-  .post-body {
-    flex: 1;
+  /* ── Section ── */
+  .articles {
     display: flex;
     flex-direction: column;
-    gap: 5px;
-  }
-
-  .post-top {
-    display: flex;
-    align-items: center;
     gap: 10px;
   }
 
-  .post-tag {
+  .section-label {
     font-size: 11px;
-    padding: 2px 8px;
-    border-radius: var(--radius-sm);
-    background: var(--color-bg-secondary);
-    color: var(--color-text-secondary);
-    border: 0.5px solid var(--color-border);
-    white-space: nowrap;
-  }
-
-  .post-meta {
-    font-size: 11px;
-    color: var(--color-text-tertiary);
-  }
-
-  .post-title {
-    font-size: 14px;
     font-weight: 500;
-    color: var(--color-text-primary);
+    color: var(--text-3);
+    letter-spacing: 0.04em;
+    margin-bottom: 0.25rem;
+  }
+
+  /* ── Card base ── */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    transition: border-color 0.15s;
+  }
+
+  .card:hover { border-color: var(--border-2); }
+
+  /* ── Featured ── */
+  .card-featured {
+    padding: 0 2rem 2rem;
+    gap: 0.875rem;
+  }
+
+  .card-accent {
+    height: 2px;
+    background: linear-gradient(90deg, #6366f1 0%, #a78bfa 50%, #60a5fa 100%);
+    border-radius: 0 0 2px 2px;
+    margin: 0 -2rem 1rem;
+  }
+
+  /* ── Tags ── */
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .tag {
+    font-size: 11px;
+    color: var(--accent-text);
+    background: var(--bg-tag);
+    border-radius: var(--radius-sm);
+    padding: 2px 8px;
+    line-height: 1.6;
+  }
+
+  /* ── Titles ── */
+  .card-title-lg {
+    font-size: clamp(18px, 2.5vw, 22px);
+    font-weight: 700;
+    color: var(--text-1);
     line-height: 1.4;
-    text-decoration: none;
+    letter-spacing: -0.4px;
+    transition: color 0.1s;
   }
 
-  .post-title:hover {
-    text-decoration: underline;
+  .card-title-lg:hover { color: var(--accent-text); }
+
+  .card-title-md {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-1);
+    line-height: 1.45;
+    letter-spacing: -0.3px;
+    transition: color 0.1s;
   }
 
-  .post-excerpt {
+  .card-title-md:hover { color: var(--accent-text); }
+
+  /* ── Description ── */
+  .card-desc {
     font-size: 13px;
-    color: var(--color-text-secondary);
-    line-height: 1.65;
-    max-width: 560px;
+    color: var(--text-2);
+    line-height: 1.75;
+    flex: 1;
   }
 
-  .read-more {
+  .card-desc-clamp {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* ── Meta ── */
+  .card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.25rem;
+  }
+
+  .meta-date {
     font-size: 12px;
-    color: var(--color-text-secondary);
-    border-bottom: 0.5px solid var(--color-border-hover);
-    padding-bottom: 1px;
-    align-self: flex-start;
+    color: var(--text-3);
   }
 
-  .load-wrap {
+  .meta-right {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding-top: 1.25rem;
+    gap: 12px;
   }
 
-  .load-btn {
+  .meta-item {
     font-size: 12px;
-    color: var(--color-text-secondary);
-    background: transparent;
-    border: 0.5px solid var(--color-border-hover);
-    border-radius: var(--radius-md);
-    padding: 6px 18px;
-    cursor: pointer;
-    font-family: var(--font-sans);
+    color: var(--text-3);
   }
 
-  .load-btn:hover {
-    background: var(--color-bg-secondary);
+  .meta-likes {
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
 
-  .load-btn:disabled {
-    opacity: 0.35;
-    cursor: default;
+  /* ── Grid ── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
   }
 
-  .count {
-    font-size: 11px;
-    color: var(--color-text-tertiary);
+  @media (max-width: 580px) {
+    .cards-grid { grid-template-columns: 1fr; }
+    .hero-title { letter-spacing: -0.8px; }
   }
 </style>

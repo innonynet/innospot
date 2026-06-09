@@ -2,8 +2,9 @@
 title: "クラウドインフラ設計の基本：AzureとAWSの使い分け"
 description: "マルチクラウド戦略が当たり前になった今、AzureとAWSそれぞれの強みを理解して適切に使い分けるための判断基準を整理する。"
 date: 2026-04-01
-tag: cloud
+tags: [azure, aws]
 readingTime: 6
+likes: 28
 ---
 
 ## はじめに

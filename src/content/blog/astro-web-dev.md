@@ -2,8 +2,9 @@
 title: "Astroで作る高速静的サイト：Islands Architectureの実践"
 description: "ReactやNext.jsが主流の中、なぜAstroを選ぶのか。デフォルトでJSを送らない設計思想と、コンテンツ重視のサイト構築に最適な理由を実例とともに解説する。"
 date: 2026-04-08
-tag: dev
+tags: [oss]
 readingTime: 4
+likes: 15
 ---
 
 ## Astroとは？

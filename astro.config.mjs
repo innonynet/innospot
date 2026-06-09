@@ -2,7 +2,7 @@ import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 
 export default defineConfig({
-  site: 'https://innony.net',
+  site: 'https://innospot.net',
   integrations: [tailwind()],
   output: 'static',
   redirects: {

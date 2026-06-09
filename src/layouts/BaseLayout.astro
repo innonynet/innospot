@@ -1,22 +1,28 @@
 ---
+import { getCollection } from "astro:content";
+
 interface Props {
   title?: string;
   description?: string;
   ogImage?: string;
-  ogType?: 'website' | 'article';
+  ogType?: "website" | "article";
 }
 
 const {
-  title = "いのろぐ",
-  description = "AzureとAWSをいじり倒すブログ",
+  title = "inolog",
+  description = "Terraform / Azure / Kubernetes を中心に、設計判断・移行戦略・組織論まで踏み込んで書きます。",
   ogImage = "/og-default.svg",
   ogType = "website",
 } = Astro.props;
 
-const siteUrl = Astro.site?.href?.replace(/\/$/, '') ?? 'https://innony.net';
+const posts = await getCollection("blog");
+const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+const recentCount = posts.filter((p) => new Date(p.data.date) > thirtyDaysAgo).length;
+
+const siteUrl = Astro.site?.href?.replace(/\/$/, "") ?? "https://innony.net";
 const canonicalUrl = new URL(Astro.url.pathname, siteUrl).href;
-const ogImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`;
-const pageTitle = title === "いのろぐ" ? title : `${title} | いのろぐ`;
+const ogImageUrl = ogImage.startsWith("http") ? ogImage : `${siteUrl}${ogImage}`;
+const pageTitle = title === "inolog" ? title : `${title} | inolog`;
 ---
 
 <!DOCTYPE html>
@@ -28,35 +34,28 @@ const pageTitle = title === "いのろぐ" ? title : `${title} | いのろぐ`;
     <link rel="canonical" href={canonicalUrl} />
     <title>{pageTitle}</title>
 
-    <!-- OGP -->
     <meta property="og:type" content={ogType} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImageUrl} />
-    <meta property="og:site_name" content="いのろぐ" />
+    <meta property="og:site_name" content="inolog" />
     <meta property="og:locale" content="ja_JP" />
-
-    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
 
-    <!-- AdSense: 承認済みならここにタグを貼る -->
-    <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
-
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
 
-    <!-- ダークモード初期化（チラつき防止） -->
     <script is:inline>
       (function () {
-        const saved = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (saved === 'dark' || (!saved && prefersDark)) {
-          document.documentElement.setAttribute('data-theme', 'dark');
+        const saved = localStorage.getItem("theme");
+        const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+        if (saved === "light" || (!saved && prefersLight)) {
+          document.documentElement.setAttribute("data-theme", "light");
         }
       })();
     </script>
@@ -66,17 +65,21 @@ const pageTitle = title === "いのろぐ" ? title : `${title} | いのろぐ`;
       <header class="site-header">
         <div class="header-inner">
           <a href="/" class="logo">
-            <span class="logo-main">いのろぐ</span>
-            <span class="logo-sub">AzureとAWSをいじり倒すブログ</span>
+            <span class="logo-dot"></span>
+            <span class="logo-text">inolog</span>
           </a>
           <nav class="nav">
-            <a href="/">tech</a>
-            <a href="/about">about</a>
-            <button id="theme-toggle" class="theme-btn" aria-label="ダークモード切り替え">
-              <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <a href="/" class="nav-link">記事</a>
+            <a href="/tags" class="nav-link">タグ</a>
+            <a href="/about" class="nav-link">about</a>
+            {recentCount > 0 && (
+              <a href="/" class="nav-badge">新着 {recentCount}</a>
+            )}
+            <button id="theme-toggle" class="theme-btn" aria-label="テーマ切り替え">
+              <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
               </svg>
-              <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
               </svg>
             </button>
@@ -90,23 +93,24 @@ const pageTitle = title === "いのろぐ" ? title : `${title} | いのろぐ`;
 
       <footer class="site-footer">
         <div class="footer-inner">
-          <p>© {new Date().getFullYear()} いのろぐ</p>
+          <span>© {new Date().getFullYear()} inolog</span>
+          <span>Terraform · Azure · Kubernetes</span>
         </div>
       </footer>
     </div>
 
     <script>
-      const toggle = document.getElementById('theme-toggle');
+      const toggle = document.getElementById("theme-toggle");
       const html = document.documentElement;
 
-      toggle?.addEventListener('click', () => {
-        const isDark = html.getAttribute('data-theme') === 'dark';
-        if (isDark) {
-          html.removeAttribute('data-theme');
-          localStorage.setItem('theme', 'light');
+      toggle?.addEventListener("click", () => {
+        const isLight = html.getAttribute("data-theme") === "light";
+        if (isLight) {
+          html.removeAttribute("data-theme");
+          localStorage.setItem("theme", "dark");
         } else {
-          html.setAttribute('data-theme', 'dark');
-          localStorage.setItem('theme', 'dark');
+          html.setAttribute("data-theme", "light");
+          localStorage.setItem("theme", "light");
         }
       });
     </script>
@@ -120,64 +124,68 @@ const pageTitle = title === "いのろぐ" ? title : `${title} | いのろぐ`;
     padding: 0;
   }
 
+  /* ── Dark (default) ── */
   :root {
-    --font-sans: "Noto Sans JP", system-ui, sans-serif;
-    --color-text-primary: #1a1a1a;
-    --color-text-secondary: #555;
-    --color-text-tertiary: #999;
-    --color-border: rgba(0, 0, 0, 0.1);
-    --color-border-hover: rgba(0, 0, 0, 0.2);
-    --color-bg: #fff;
-    --color-bg-secondary: #f7f7f5;
+    --font-sans: "Noto Sans JP", "Inter", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+
+    --bg:          #080808;
+    --bg-card:     #101010;
+    --bg-card-2:   #161616;
+    --bg-tag:      rgba(99, 102, 241, 0.1);
+    --border:      rgba(255, 255, 255, 0.07);
+    --border-2:    rgba(255, 255, 255, 0.13);
+
+    --text-1:      #efefef;
+    --text-2:      #888;
+    --text-3:      #555;
+    --accent:      #6366f1;
+    --accent-text: #a5b4fc;
+
     --radius-sm: 4px;
     --radius-md: 8px;
     --radius-lg: 12px;
 
-    /* Shiki dual-theme: light mode */
-    --shiki-light: #24292e;
-    --shiki-light-bg: #f6f8fa;
-    --shiki-dark: #e1e4e8;
-    --shiki-dark-bg: #0d1117;
+    /* Shiki: dark default */
+    --shiki-light:    #e1e4e8;
+    --shiki-light-bg: #0d1117;
+    --shiki-dark:     #e1e4e8;
+    --shiki-dark-bg:  #0d1117;
   }
 
-  [data-theme="dark"] {
-    --color-text-primary: #f0f0f0;
-    --color-text-secondary: #aaa;
-    --color-text-tertiary: #666;
-    --color-border: rgba(255, 255, 255, 0.1);
-    --color-border-hover: rgba(255, 255, 255, 0.2);
-    --color-bg: #141414;
-    --color-bg-secondary: #1e1e1e;
+  /* ── Light override ── */
+  [data-theme="light"] {
+    --bg:          #ffffff;
+    --bg-card:     #f7f7f5;
+    --bg-card-2:   #efefed;
+    --bg-tag:      rgba(99, 102, 241, 0.08);
+    --border:      rgba(0, 0, 0, 0.08);
+    --border-2:    rgba(0, 0, 0, 0.15);
 
-    /* Shiki dual-theme: dark mode overrides */
-    --shiki-light: #e1e4e8;
-    --shiki-light-bg: #0d1117;
+    --text-1:      #111111;
+    --text-2:      #555;
+    --text-3:      #999;
+    --accent-text: #5254d4;
+
+    --shiki-light:    #24292e;
+    --shiki-light-bg: #f6f8fa;
   }
 
   html {
     font-family: var(--font-sans);
     font-size: 16px;
     line-height: 1.7;
-    color: var(--color-text-primary);
-    background: var(--color-bg);
+    color: var(--text-1);
+    background: var(--bg);
     -webkit-font-smoothing: antialiased;
-    transition: background 0.2s, color 0.2s;
+    transition: background 0.15s, color 0.15s;
   }
 
   a { color: inherit; text-decoration: none; }
 
-  /* Shiki code block theme switching */
+  /* ── Shiki ── */
   .astro-code,
   .astro-code span {
-    color: var(--shiki-light) !important;
-    background-color: var(--shiki-light-bg) !important;
-    font-style: var(--shiki-light-font-style) !important;
-    font-weight: var(--shiki-light-font-weight) !important;
-    text-decoration: var(--shiki-light-text-decoration) !important;
-  }
-
-  [data-theme="dark"] .astro-code,
-  [data-theme="dark"] .astro-code span {
     color: var(--shiki-dark) !important;
     background-color: var(--shiki-dark-bg) !important;
     font-style: var(--shiki-dark-font-style) !important;
@@ -185,61 +193,90 @@ const pageTitle = title === "いのろぐ" ? title : `${title} | いのろぐ`;
     text-decoration: var(--shiki-dark-text-decoration) !important;
   }
 
-  .site-wrapper {
-    max-width: 780px;
-    margin: 0 auto;
-    padding: 0 1rem;
+  [data-theme="light"] .astro-code,
+  [data-theme="light"] .astro-code span {
+    color: var(--shiki-light) !important;
+    background-color: var(--shiki-light-bg) !important;
+    font-style: var(--shiki-light-font-style) !important;
+    font-weight: var(--shiki-light-font-weight) !important;
+    text-decoration: var(--shiki-light-text-decoration) !important;
   }
 
-  /* Header */
+  /* ── Layout ── */
+  .site-wrapper {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+  }
+
+  /* ── Header ── */
   .site-header {
-    border-bottom: 0.5px solid var(--color-border);
-    margin-bottom: 2rem;
+    padding: 1.25rem 0;
+    margin-bottom: 0;
   }
 
   .header-inner {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.25rem 0;
   }
 
   .logo {
     display: flex;
-    flex-direction: column;
-    gap: 2px;
+    align-items: center;
+    gap: 8px;
     text-decoration: none;
   }
 
-  .logo-main {
-    font-size: 17px;
-    font-weight: 500;
-    color: var(--color-text-primary);
-    letter-spacing: -0.3px;
+  .logo-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
   }
 
-  .logo-sub {
-    font-size: 11px;
-    color: var(--color-text-tertiary);
-    font-weight: 400;
+  .logo-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-1);
+    letter-spacing: -0.3px;
+    font-family: "Inter", system-ui, sans-serif;
   }
 
   .nav {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 4px;
   }
 
-  .nav a {
+  .nav-link {
     font-size: 13px;
-    color: var(--color-text-secondary);
+    color: var(--text-2);
+    padding: 4px 10px;
+    border-radius: var(--radius-md);
+    transition: color 0.1s;
   }
 
-  .nav a:hover {
-    color: var(--color-text-primary);
+  .nav-link:hover {
+    color: var(--text-1);
   }
 
-  /* ダークモードトグル */
+  .nav-badge {
+    font-size: 12px;
+    color: var(--text-1);
+    border: 1px solid var(--border-2);
+    border-radius: 20px;
+    padding: 3px 12px;
+    margin-left: 4px;
+    transition: border-color 0.1s;
+  }
+
+  .nav-badge:hover {
+    border-color: var(--accent);
+    color: var(--accent-text);
+  }
+
   .theme-btn {
     display: flex;
     align-items: center;
@@ -248,32 +285,40 @@ const pageTitle = title === "いのろぐ" ? title : `${title} | いのろぐ`;
     height: 28px;
     border: none;
     background: transparent;
-    color: var(--color-text-secondary);
+    color: var(--text-3);
     cursor: pointer;
     padding: 0;
+    margin-left: 4px;
+    border-radius: var(--radius-md);
+    transition: color 0.1s;
   }
 
-  .theme-btn:hover {
-    color: var(--color-text-primary);
-  }
+  .theme-btn:hover { color: var(--text-1); }
 
+  /* dark default: show sun (switch TO light) */
   .theme-btn .icon-moon { display: none; }
   .theme-btn .icon-sun  { display: block; }
 
-  [data-theme="dark"] .theme-btn .icon-moon { display: block; }
-  [data-theme="dark"] .theme-btn .icon-sun  { display: none; }
+  /* light mode: show moon (switch TO dark) */
+  [data-theme="light"] .theme-btn .icon-moon { display: block; }
+  [data-theme="light"] .theme-btn .icon-sun  { display: none; }
 
-  /* Footer */
+  /* ── Main ── */
+  .main-content {
+    min-height: 60vh;
+  }
+
+  /* ── Footer ── */
   .site-footer {
-    border-top: 0.5px solid var(--color-border);
-    margin-top: 3rem;
+    border-top: 1px solid var(--border);
+    margin-top: 5rem;
   }
 
   .footer-inner {
     display: flex;
     justify-content: space-between;
-    padding: 1.25rem 0;
+    padding: 1.5rem 0;
     font-size: 12px;
-    color: var(--color-text-tertiary);
+    color: var(--text-3);
   }
 </style>
