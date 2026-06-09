@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#141414"/>
+  <!-- subtle grid -->
+  <line x1="0" y1="1" x2="1200" y2="1" stroke="#1e1e1e" stroke-width="1"/>
+  <line x1="0" y1="629" x2="1200" y2="629" stroke="#1e1e1e" stroke-width="1"/>
+  <!-- indigo accent bar -->
+  <rect x="80" y="248" width="3" height="76" rx="1.5" fill="#6366f1"/>
+  <!-- site name -->
+  <text x="104" y="306" font-family="-apple-system, 'Helvetica Neue', Arial, sans-serif" font-size="58" font-weight="500" fill="#f0f0f0" letter-spacing="-1">いのろぐ</text>
+  <!-- tagline -->
+  <text x="104" y="352" font-family="-apple-system, 'Helvetica Neue', Arial, sans-serif" font-size="22" fill="#555" letter-spacing="0">AzureとAWSをいじり倒すブログ</text>
+  <!-- bottom domain -->
+  <text x="80" y="560" font-family="-apple-system, 'Helvetica Neue', Arial, sans-serif" font-size="16" fill="#333" letter-spacing="0.5">innony.net</text>
+</svg>
